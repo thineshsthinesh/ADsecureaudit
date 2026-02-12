@@ -1,0 +1,35 @@
+info:
+  name: "Accounts with SPN and No Pre-Authentication (Double Threat)"
+  author: "Red Team"
+  severity: critical
+  description: "Identifies accounts vulnerable to both AS-REP Roasting AND Kerberoasting"
+  tags:
+    - kerberos
+    - as-rep-roasting
+    - kerberoasting
+    - spn
+    - credential-access
+  references:
+    - "https://attack.mitre.org/techniques/T1558/003/"
+    - "https://attack.mitre.org/techniques/T1558/004/"
+  attack_vector: "Combined AS-REP Roasting and Kerberoasting - offline password cracking via multiple vectors"
+  mitigation: "Enable Kerberos pre-authentication, use Managed Service Accounts (gMSA) for SPNs, enforce strong passwords (25+ characters)"
+
+ldap:
+  search_filter: "(&(objectClass=user)(servicePrincipalName=*)(userAccountControl:1.2.840.113556.1.4.803:=4194304))"
+  attributes:
+    - sAMAccountName
+    - distinguishedName
+    - servicePrincipalName
+    - userAccountControl
+    - pwdLastSet
+    - memberOf
+
+detection:
+  condition: and
+  rules:
+    - attribute: servicePrincipalName
+      operator: exists
+    - attribute: userAccountControl
+      operator: bitwise_and
+      value: 4194304
