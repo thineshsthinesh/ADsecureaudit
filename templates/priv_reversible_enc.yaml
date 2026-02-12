@@ -1,0 +1,30 @@
+info:
+  name: "Privileged Accounts with Reversible Encryption (Critical)"
+  author: "Security Audit Team"
+  severity: critical
+  description: "Detects high-privilege accounts storing passwords with reversible encryption"
+  tags:
+    - password-storage
+    - reversible-encryption
+    - credential-theft
+    - privileged-accounts
+  references:
+    - "https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/store-passwords-using-reversible-encryption"
+  attack_vector: "Attackers can recover plaintext passwords from AD database if compromised"
+  mitigation: "Immediately disable reversible encryption for all privileged accounts"
+
+ldap:
+  search_filter: "(&(objectClass=user)(objectCategory=person)(userAccountControl:1.2.840.113556.1.4.803:=128)(|(adminCount=1)(memberOf=*CN=Domain Admins*)(memberOf=*CN=Enterprise Admins*)(memberOf=*CN=Schema Admins*)(memberOf=*CN=Administrators*)))"
+  attributes:
+    - sAMAccountName
+    - distinguishedName
+    - userAccountControl
+    - memberOf
+    - adminCount
+
+detection:
+  condition: and
+  rules:
+    - attribute: userAccountControl
+      operator: bitwise_and
+      value: 128
