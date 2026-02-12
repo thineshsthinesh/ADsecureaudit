@@ -1,0 +1,29 @@
+info:
+  name: "Weak Kerberos Encryption Detection (DES)"
+  author: "Security Operations"
+  severity: critical
+  description: "Identifies accounts configured to use weak DES encryption for Kerberos"
+  tags:
+    - kerberos
+    - weak-crypto
+    - encryption
+  references:
+    - "https://www.stigviewer.com/stig/windows_server_2019/2020-06-15/finding/V-93181"
+  attack_vector: "Kerberos downgrade attack using DES encryption"
+  mitigation: "Disable DES encryption (Remove USE_DES_KEY_ONLY flag from userAccountControl)"
+
+ldap:
+  search_filter: "(&(objectClass=user)(userAccountControl:1.2.840.113556.1.4.803:=2097152))"
+  attributes:
+    - sAMAccountName
+    - distinguishedName
+    - userAccountControl
+    - servicePrincipalName
+  search_base: null
+
+detection:
+  condition: and
+  rules:
+    - attribute: userAccountControl
+      operator: bitwise_and
+      value: 2097152  # USE_DES_KEY_ONLY flag
