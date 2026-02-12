@@ -1,0 +1,30 @@
+info:
+  name: "Domain Controllers with Print Spooler Enabled (PrintNightmare)"
+  author: "Security Operations"
+  severity: critical
+  description: "Identifies Domain Controllers that may have Print Spooler service enabled, vulnerable to PrintNightmare attacks"
+  tags:
+    - printnightmare
+    - cve-2021-34527
+    - domain-controllers
+    - rce
+  references:
+    - "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527"
+    - "https://attack.mitre.org/techniques/T1547/012/"
+  attack_vector: "PrintNightmare (CVE-2021-34527) - Remote Code Execution on Domain Controllers"
+  mitigation: "Disable Print Spooler service on all Domain Controllers, apply Microsoft security updates"
+
+ldap:
+  search_filter: "(&(objectClass=computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))"
+  attributes:
+    - cn
+    - dNSHostName
+    - distinguishedName
+    - operatingSystem
+    - operatingSystemVersion
+
+detection:
+  condition: and
+  rules:
+    - attribute: dNSHostName
+      operator: exists
