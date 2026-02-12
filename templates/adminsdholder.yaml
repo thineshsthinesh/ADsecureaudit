@@ -1,0 +1,32 @@
+info:
+  name: "AdminSDHolder Orphaned Accounts"
+  author: "Purple Team"
+  severity: high
+  description: "Detects accounts with adminCount=1 but not members of protected groups (potential persistence mechanism)"
+  tags:
+    - adminsdholder
+    - privilege-escalation
+    - persistence
+    - orphaned-admins
+  references:
+    - "https://adsecurity.org/?p=1906"
+    - "https://attack.mitre.org/techniques/T1078/002/"
+  attack_vector: "Orphaned adminCount accounts retain privileges without being in admin groups, bypassing auditing"
+  mitigation: "Review accounts with adminCount=1, verify legitimate group membership, reset adminCount for removed accounts"
+
+ldap:
+  search_filter: "(&(objectClass=user)(adminCount=1)(!(memberOf=*CN=Domain Admins*))(!(memberOf=*CN=Enterprise Admins*))(!(memberOf=*CN=Administrators*))(!(memberOf=*CN=Schema Admins*))(!(memberOf=*CN=Account Operators*))(!(memberOf=*CN=Backup Operators*))(!(memberOf=*CN=Print Operators*))(!(memberOf=*CN=Server Operators*))(!(memberOf=*CN=Replicator*)))"
+  attributes:
+    - sAMAccountName
+    - distinguishedName
+    - memberOf
+    - adminCount
+    - whenChanged
+    - lastLogon
+
+detection:
+  condition: and
+  rules:
+    - attribute: adminCount
+      operator: equals
+      value: 1
